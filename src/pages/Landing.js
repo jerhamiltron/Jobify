@@ -1,0 +1,30 @@
+import main from '../assets/images/main.svg';
+
+import Wrapper from '../assets/wrappers/LandingPage';
+import { Logo } from '../components';
+
+const Landing = () => {
+  return (
+    <Wrapper>
+      <nav>
+        <Logo />
+      </nav>
+      <div className='container page'>
+        <div className='info'>
+          <h1>
+            job <span>tracking</span> app
+          </h1>
+          <p>
+            I'm baby blog etsy 8-bit cray sriracha iPhone knausgaard narwhal
+            gatekeep mumblecore vape la croix disrupt quinoa. Marxism jean
+            shorts flannel, lomo next level occupy kickstarter intelligentsia.
+          </p>
+          <button className='btn btn-hero'>Login/Register</button>
+        </div>
+        <img src={main} alt='job hunt' className='img main-img' />
+      </div>
+    </Wrapper>
+  );
+};
+
+export default Landing;
