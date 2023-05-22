@@ -20,7 +20,16 @@ import errorHandler from './middleware/error-handler.js';
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Welcome!');
+  res.json({
+    status: 'Connected',
+    message: 'Welcome!',
+  });
+});
+
+app.get('/api/v1', (req, res) => {
+  res.json({
+    message: 'API',
+  });
 });
 
 app.use('/api/v1/auth', authRouter);
@@ -35,10 +44,7 @@ const port = process.env.PORT || 5000;
 
 const start = async () => {
   try {
-    const url = process.env.MONGO_URL.replace(
-      '<password>',
-      process.env.MONGO_PASSWORD
-    );
+    const url = process.env.MONGO_URL.replace('<password>', process.env.MONGO_PASSWORD);
     await connectDB(url);
     app.listen(port, () => console.log(`Server running on port ${port}`));
   } catch (err) {
