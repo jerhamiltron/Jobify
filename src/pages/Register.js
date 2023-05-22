@@ -17,7 +17,7 @@ const Register = () => {
   const [values, setValues] = useState(initialState);
 
   // global state and useNavigate
-  const { isLoading, showAlert, displayAlert } = useAppContext();
+  const { isLoading, showAlert, displayAlert, registerUser } = useAppContext();
 
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
@@ -34,11 +34,18 @@ const Register = () => {
     if (!email || !password || (!isMember && !name)) {
       displayAlert();
     }
+
+    const currentUser = { name, email, password };
+    if (isMember) {
+      console.log('Already a member');
+    } else {
+      registerUser(currentUser);
+    }
   };
 
   return (
-    <Wrapper className='full-page'>
-      <form className='form' onSubmit={onSubmit}>
+    <Wrapper className="full-page">
+      <form className="form" onSubmit={onSubmit}>
         <Logo />
         <h3>{values.isMember ? 'Login' : 'Register'}</h3>
         {showAlert && <Alert values={values} />}
@@ -46,35 +53,35 @@ const Register = () => {
         {/* name field */}
         {!values.isMember && (
           <FormRow
-            type='text'
-            name='name'
+            type="text"
+            name="name"
             value={values.name}
             handleChange={handleChange}
-            labelText='name'
+            labelText="name"
           />
         )}
 
         <FormRow
-          type='email'
-          name='email'
+          type="email"
+          name="email"
           value={values.email}
           handleChange={handleChange}
-          labelText='email'
+          labelText="email"
         />
         <FormRow
-          type='password'
-          name='password'
+          type="password"
+          name="password"
           value={values.password}
           handleChange={handleChange}
-          labelText='password'
+          labelText="password"
         />
 
-        <button type='submit' className='btn btn-block'>
+        <button type="submit" className="btn btn-block" disabled={isLoading}>
           Submit
         </button>
         <p>
           {values.isMember ? 'Need to register?' : 'Already a member?'}
-          <button type='button' onClick={toggleMember} className='member-btn'>
+          <button type="button" onClick={toggleMember} className="member-btn">
             {values.isMember ? 'Register' : 'Login'}
           </button>
         </p>
