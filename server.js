@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import 'express-async-errors';
+import morgan from 'morgan';
 
 const app = express();
 
@@ -16,6 +17,10 @@ import jobsRouter from './routes/jobsRouter.js';
 // Middleware
 import notFound from './middleware/not-found.js';
 import errorHandler from './middleware/error-handler.js';
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
 
 app.use(express.json());
 
