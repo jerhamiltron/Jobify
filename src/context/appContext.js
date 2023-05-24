@@ -9,6 +9,9 @@ import {
   SETUP_USER_SUCCESS,
   SETUP_USER_ERROR,
   LOGOUT_USER,
+  UPDATE_USER_BEGIN,
+  UPDATE_USER_SUCCESS,
+  UPDATE_USER_ERROR,
   TOGGLE_SIDEBAR,
 } from './actions';
 
@@ -80,9 +83,42 @@ const AppProvider = ({ children }) => {
     removeUserFromLocalStorage();
   };
 
+  const updateUser = async (currentUser) => {
+    dispatch({ type: UPDATE_USER_BEGIN });
+
+    try {
+      const headerConfig = { headers: { Authorization: `Bearer ${state.token}` } };
+      const { data } = await axios.patch('/api/v1/auth/updateUser', currentUser, headerConfig);
+      const { user, token, location } = data;
+
+      dispatch({
+        type: UPDATE_USER_SUCCESS,
+        payload: {
+          user,
+          token,
+          location,
+          alertType: 'success',
+          alertText: 'User updated successfully',
+        },
+      });
+      addUserToLocalStorage({ user, token, location });
+    } catch (err) {
+      dispatch({ type: UPDATE_USER_ERROR, payload: { msg: err.response.data.message } });
+    }
+    clearAlert();
+  };
+
   return (
     <AppContext.Provider
-      value={{ ...state, displayAlert, clearAlert, setupUser, logoutUser, toggleSidebar }}
+      value={{
+        ...state,
+        displayAlert,
+        clearAlert,
+        setupUser,
+        logoutUser,
+        toggleSidebar,
+        updateUser,
+      }}
     >
       {children}
     </AppContext.Provider>
