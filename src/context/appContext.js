@@ -36,6 +36,42 @@ const AppContext = React.createContext();
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // axios  - Global setup - would be used on all axios requests and would send bearer token
+  // axios.defaults.headers['Authorization'] = `Bearer ${state.token}`;
+
+  const authFetch = axios.create({
+    baseURL: '/api/v1',
+  });
+
+  // Interceptors request - used in authFetch , but could be used directly in axios (see docs)
+  authFetch.interceptors.request.use(
+    (config) => {
+      config.headers['Authorization'] = `Bearer ${state.token}`;
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // interceptors response
+  authFetch.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error) => {
+      console.log(error.response);
+      if (error.response.status === 401) {
+        console.log('AUTH ERROR');
+        setTimeout(() => {
+          logoutUser();
+        }, 3000);
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
   const displayAlert = () => {
     dispatch({ type: DISPLAY_ALERT });
     clearAlert();
@@ -87,8 +123,9 @@ const AppProvider = ({ children }) => {
     dispatch({ type: UPDATE_USER_BEGIN });
 
     try {
-      const headerConfig = { headers: { Authorization: `Bearer ${state.token}` } };
-      const { data } = await axios.patch('/api/v1/auth/updateUser', currentUser, headerConfig);
+      // const headerConfig = { headers: { Authorization: `Bearer ${state.token}` } };
+
+      const { data } = await authFetch.patch('/auth/updateUser', currentUser);
       const { user, token, location } = data;
 
       dispatch({
@@ -103,7 +140,9 @@ const AppProvider = ({ children }) => {
       });
       addUserToLocalStorage({ user, token, location });
     } catch (err) {
-      dispatch({ type: UPDATE_USER_ERROR, payload: { msg: err.response.data.message } });
+      if (err.response.status !== 401) {
+        dispatch({ type: UPDATE_USER_ERROR, payload: { msg: err.response.data.message } });
+      }
     }
     clearAlert();
   };

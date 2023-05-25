@@ -13,11 +13,10 @@ const Profile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // remove while testing
     if (!name || !email || !lastName || !location) {
-      displayAlert({
-        alertType: 'danger',
-        alertText: 'Please fill out all fields',
-      });
+      displayAlert();
+      return;
     }
 
     updateUser({ name, email, lastName, location });
