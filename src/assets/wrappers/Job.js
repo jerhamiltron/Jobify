@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 const Wrapper = styled.article`
   background: var(--white);
@@ -54,12 +54,12 @@ const Wrapper = styled.article`
     background: #ffeeee;
   }
   .content {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1.5rem;
   }
   .content-center {
     display: grid;
     grid-template-columns: 1fr;
-    row-gap: 0.5rem;
+    row-gap: 0.25rem;
     @media (min-width: 576px) {
       grid-template-columns: 1fr 1fr;
     }
@@ -78,15 +78,17 @@ const Wrapper = styled.article`
     text-align: center;
     width: 100px;
     height: 30px;
+    margin-top: 0.5rem;
   }
   footer {
-    margin-top: 1rem;
+    margin-top: 0.25rem;
   }
   .edit-btn,
   .delete-btn {
     letter-spacing: var(--letterSpacing);
     cursor: pointer;
     height: 30px;
+    margin: 0.5rem;
   }
   .edit-btn {
     color: var(--green-dark);
@@ -100,6 +102,6 @@ const Wrapper = styled.article`
   &:hover .actions {
     visibility: visible;
   }
-`
+`;
 
-export default Wrapper
+export default Wrapper;

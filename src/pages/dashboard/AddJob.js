@@ -6,6 +6,7 @@ import FormRowSelect from '../../components/FormRowSelect';
 
 const AddJob = () => {
   const {
+    isLoading,
     isEditing,
     showAlert,
     displayAlert,
@@ -18,6 +19,7 @@ const AddJob = () => {
     statusOptions,
     handleChange,
     clearValues,
+    createJob,
   } = useAppContext();
 
   const handleSubmit = (e) => {
@@ -27,7 +29,11 @@ const AddJob = () => {
       displayAlert();
       return;
     }
-    console.log('createjob');
+    if (isEditing) {
+      // edit job
+      return;
+    }
+    createJob();
   };
 
   const handleJobInput = (e) => {
@@ -53,7 +59,7 @@ const AddJob = () => {
           />
           {/* job type */}
           <FormRowSelect
-            labelText="jobType"
+            labelText="job Type"
             name="jobType"
             value={jobType}
             handleChange={handleJobInput}
@@ -64,13 +70,19 @@ const AddJob = () => {
 
           <FormRowSelect
             labelText="status"
+            name="status"
             value={status}
             handleChange={handleJobInput}
             list={statusOptions}
           />
 
           <div className="btn-container">
-            <button className="btn btn-block submit-btn" type="submit" onClick={handleSubmit}>
+            <button
+              className="btn btn-block submit-btn"
+              type="submit"
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
               submit
             </button>
 
