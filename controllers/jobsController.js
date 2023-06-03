@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import Job from '../models/Job.js';
 import { BadRequestError, NotFoundError } from '../errors/index.js';
+import checkPermissions from '../utils/checkPermissions.js';
 
 export const createJob = async (req, res) => {
   const { position, company } = req.body;
@@ -16,7 +17,19 @@ export const createJob = async (req, res) => {
 };
 
 export const deleteJob = async (req, res) => {
-  await res.send('Delete job');
+  const { id: jobId } = req.params;
+
+  const job = await Job.findOne({ _id: jobId });
+
+  if (!job) {
+    throw new NotFoundError(`No job with id: ${jobId} was found`);
+  }
+
+  checkPermissions(req.user, job.createdBy);
+
+  await job.deleteOne();
+
+  res.status(StatusCodes.OK).json({ msg: 'Job deleted successfully' });
 };
 
 export const getAllJobs = async (req, res) => {
@@ -41,13 +54,20 @@ export const updateJob = async (req, res) => {
   }
 
   // check permissions
+  checkPermissions(req.user, job.createdBy);
 
   const updatedJob = await Job.findOneAndUpdate({ _id: jobId }, req.body, {
     new: true,
     runValidators: true,
   });
 
-  res.status(StatusCodes.OK).json({ job: updatedJob });
+  // Used if you need some type of hook to update - Similar to the pre save hook issue
+  // job.position = position;
+  // job.company = company;
+
+  // await job.save();
+
+  res.status(StatusCodes.OK).json({ updatedJob });
 };
 
 export const showStats = async (req, res) => {
