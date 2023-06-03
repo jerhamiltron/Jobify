@@ -21,6 +21,10 @@ import {
   GET_JOBS_BEGIN,
   GET_JOBS_SUCCESS,
   SET_EDIT_JOB,
+  EDIT_JOB_BEGIN,
+  EDIT_JOB_SUCCESS,
+  EDIT_JOB_ERROR,
+  DELETE_JOB_BEGIN,
 } from './actions';
 
 const token = localStorage.getItem('token');
@@ -207,7 +211,7 @@ const AppProvider = ({ children }) => {
     try {
       const { data } = await authFetch(url);
       const { jobs, totalJobs, numOfPages } = data;
-      console.log(data);
+      // console.log(data);
       dispatch({ type: GET_JOBS_SUCCESS, payload: { jobs, totalJobs, numOfPages } });
     } catch (error) {
       console.log(error.response);
@@ -220,13 +224,35 @@ const AppProvider = ({ children }) => {
     dispatch({ type: SET_EDIT_JOB, payload: { id } });
   };
 
-  const editJob = () => {
+  const editJob = async () => {
+    dispatch({ type: EDIT_JOB_BEGIN });
     try {
-    } catch (error) {}
+      const { position, company, jobLocation, jobType, status } = state;
+
+      await authFetch.patch(`/jobs/${state.editJobId}`, {
+        company,
+        position,
+        jobLocation,
+        jobType,
+        status,
+      });
+      dispatch({ type: EDIT_JOB_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      dispatch({ type: EDIT_JOB_ERROR, payload: { msg: error.response.data.message } });
+    }
+    clearAlert();
   };
 
-  const deleteJob = (id) => {
-    console.log(`delete job: ${id}`);
+  const deleteJob = async (id) => {
+    dispatch({ type: DELETE_JOB_BEGIN, payload: { id } });
+    try {
+      await authFetch.delete(`/jobs/${id}`);
+      getJobs();
+    } catch (error) {
+      logoutUser();
+    }
   };
 
   return (
