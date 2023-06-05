@@ -20,7 +20,7 @@ export const TOGGLE_SIDEBAR = 'TOGGLE_SIDEBAR';
 export const HANDLE_CHANGE = 'HANDLE_CHANGE';
 export const CLEAR_VALUES = 'CLEAR_VALUES';
 
-// job setups
+// job actions
 export const CREATE_JOB_BEGIN = 'CREATE_JOB_BEGIN';
 export const CREATE_JOB_SUCCESS = 'CREATE_JOB_SUCCESS';
 export const CREATE_JOB_ERROR = 'CREATE_JOB_ERROR';
@@ -35,3 +35,10 @@ export const EDIT_JOB_SUCCESS = 'EDIT_JOB_SUCCESS';
 export const EDIT_JOB_ERROR = 'EDIT_JOB_ERROR';
 
 export const DELETE_JOB_BEGIN = 'DELETE_JOB_BEGIN';
+
+// stats actions
+export const SHOW_STATS_BEGIN = 'SHOW_STATS_BEGIN';
+export const SHOW_STATS_SUCCESS = 'SHOW_STATS_SUCCESS';
+
+// random actions
+export const CLEAR_FILTERS = 'CLEAR_FILTERS';
