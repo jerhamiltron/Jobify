@@ -159,7 +159,7 @@ const reducer = (state, action) => {
   }
 
   if (action.type === GET_JOBS_BEGIN) {
-    return { ...state, isLaoding: true, showAlert: false };
+    return { ...state, isLoading: true, showAlert: false };
   }
 
   if (action.type === GET_JOBS_SUCCESS) {
