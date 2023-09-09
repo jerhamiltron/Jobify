@@ -17,7 +17,8 @@ const auth = async (req, res, next) => {
 
     // attach user to request object
     // req.user = payload;
-    req.user = { userId: payload.userId };
+    const testUser = payload.userId === '64fbf05f1c3a099406c8af59';
+    req.user = { userId: payload.userId, testUser };
     next();
   } catch (err) {
     throw new UnauthenticatedError('Authentication invalid');

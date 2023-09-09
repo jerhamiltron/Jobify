@@ -1,7 +1,16 @@
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+import helmet from 'helmet';
+import xss from 'xss-clean';
+import mongoSanitize from 'express-mongo-sanitize';
+
 import express from 'express';
 import dotenv from 'dotenv';
 import 'express-async-errors';
 import morgan from 'morgan';
+
+// eslint-disable-next-line
 
 const app = express();
 
@@ -23,27 +32,25 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
+// const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// use for deployment
+// app.use(express.static(path.resolve(__dirname, './client/build')));
+
 app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.json({
-    status: 'Connected',
-    message: 'Welcome!',
-  });
-});
-
-app.get('/api/v1', (req, res) => {
-  res.json({
-    message: 'API',
-  });
-});
+// app.use(helmet());
+// app.use(xss());
+// app.use(mongoSanitize());
 
 app.use('/api/v1/auth', authRouter);
-
 app.use('/api/v1/jobs', authenticateUser, jobsRouter);
 
-app.use(notFound);
+// use for deployment
+// app.get('*', function (request, response) {
+//   response.sendFile(path.resolve(__dirname, './client/build', 'index.html'));
+// });
 
+app.use(notFound);
 app.use(errorHandler);
 
 const port = process.env.PORT || 5000;

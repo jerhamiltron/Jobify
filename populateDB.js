@@ -11,7 +11,7 @@ const start = async () => {
   try {
     const url = process.env.MONGO_URL.replace('<password>', process.env.MONGO_PASSWORD);
     await connectDB(url);
-    await Job.deleteMany();
+    // await Job.deleteMany();
 
     const jsonProducts = JSON.parse(
       await readFile(new URL('./MOCK_DATA_jobify.json', import.meta.url))
