@@ -25,9 +25,11 @@ import {
   EDIT_JOB_SUCCESS,
   EDIT_JOB_ERROR,
   DELETE_JOB_BEGIN,
+  DELETE_JOB_ERROR,
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
+  CHANGE_PAGE,
 } from './actions';
 
 const token = localStorage.getItem('token');
@@ -221,8 +223,8 @@ const AppProvider = ({ children }) => {
   const getJobs = async () => {
     // will add pagination later
 
-    const { search, searchStatus, searchType, sort } = state;
-    let url = `/jobs?status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
+    const { page, search, searchStatus, searchType, sort } = state;
+    let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
 
     if (search) url += `&search=${search}`;
 
@@ -233,7 +235,6 @@ const AppProvider = ({ children }) => {
       // console.log(data);
       dispatch({ type: GET_JOBS_SUCCESS, payload: { jobs, totalJobs, numOfPages } });
     } catch (error) {
-      console.log(error.response);
       logoutUser();
     }
     clearAlert();
@@ -269,9 +270,13 @@ const AppProvider = ({ children }) => {
     try {
       await authFetch.delete(`/jobs/${id}`);
       getJobs();
+      // dispatch({ type: DELETE_JOB_SUCCESS });
     } catch (error) {
-      logoutUser();
+      if (error.response.status === 401) return;
+      // logoutUser();
+      dispatch({ type: DELETE_JOB_ERROR, payload: { msg: error.response.data.message } });
     }
+    clearAlert();
   };
 
   // Stats actions
@@ -284,10 +289,14 @@ const AppProvider = ({ children }) => {
         payload: { stats: data.defaultStats, monthlyApplications: data.monthlyApplications },
       });
     } catch (error) {
-      console.log(error.response);
-      // logoutUser();
+      logoutUser();
     }
     clearAlert();
+  };
+
+  // Change Page
+  const changePage = (page) => {
+    dispatch({ type: CHANGE_PAGE, payload: { page } });
   };
 
   // <------------------->
@@ -311,6 +320,7 @@ const AppProvider = ({ children }) => {
         editJob,
         showStats,
         clearFilters,
+        changePage,
       }}
     >
       {children}

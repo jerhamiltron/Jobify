@@ -24,6 +24,8 @@ import {
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
+  CHANGE_PAGE,
+  DELETE_JOB_ERROR,
 } from './actions';
 
 import { initialState } from './appContext';
@@ -117,7 +119,7 @@ const reducer = (state, action) => {
   }
 
   if (action.type === HANDLE_CHANGE) {
-    return { ...state, [action.payload.name]: action.payload.value };
+    return { ...state, page: 1, [action.payload.name]: action.payload.value };
   }
 
   if (action.type === CLEAR_VALUES) {
@@ -219,6 +221,15 @@ const reducer = (state, action) => {
       isLoading: true,
     };
   }
+  if (action.type === DELETE_JOB_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: 'danger',
+      alertText: action.payload.msg,
+    };
+  }
 
   // stats actions
   if (action.type === SHOW_STATS_BEGIN) {
@@ -237,6 +248,10 @@ const reducer = (state, action) => {
   // random actions
   if (action.type === CLEAR_FILTERS) {
     return { ...state, search: '', searchStatus: 'all', searchType: 'all', sort: 'latest' };
+  }
+
+  if (action.type === CHANGE_PAGE) {
+    return { ...state, page: action.payload.page };
   }
 
   throw new Error(`No such action ${action.type}`);

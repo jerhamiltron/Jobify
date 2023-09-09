@@ -3,13 +3,25 @@ import { useAppContext } from '../context/appContext';
 import Loading from './Loading.js';
 import Job from './Job.js';
 import Wrapper from '../assets/wrappers/JobsContainer.js';
+import PageBtnContainer from './PageBtnContainer';
 
 const JobsContainer = () => {
-  const { getJobs, jobs, isLoading, page, totalJobs, search, searchStatus, searchType, sort } =
-    useAppContext();
+  const {
+    getJobs,
+    jobs,
+    isLoading,
+    page,
+    totalJobs,
+    search,
+    searchStatus,
+    searchType,
+    sort,
+    numOfPages,
+  } = useAppContext();
 
   useEffect(() => {
     getJobs();
+    // eslint-disable-next-line
   }, [search, searchStatus, searchType, sort, page]);
 
   if (isLoading) {
@@ -27,6 +39,12 @@ const JobsContainer = () => {
 
   return (
     <Wrapper>
+      {numOfPages > 1 && (
+        <div className="btn-container-top">
+          {' '}
+          <PageBtnContainer />
+        </div>
+      )}
       <h5>
         {totalJobs} {jobs.length > 1 ? 'Jobs' : 'Job'} found
       </h5>
@@ -35,7 +53,7 @@ const JobsContainer = () => {
           return <Job key={job._id} {...job} />;
         })}
       </div>
-      {/* pagination buttons */}
+      {numOfPages > 1 && <PageBtnContainer />}
     </Wrapper>
   );
 };
