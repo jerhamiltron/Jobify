@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import xss from 'xss-clean';
 import mongoSanitize from 'express-mongo-sanitize';
+import cookieParser from 'cookie-parser';
 
 import express from 'express';
 import dotenv from 'dotenv';
@@ -32,23 +33,27 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // use for deployment
-// app.use(express.static(path.resolve(__dirname, './client/build')));
+app.use(express.static(path.resolve(__dirname, './client/build')));
 
 app.use(express.json());
-// app.use(helmet());
-// app.use(xss());
-// app.use(mongoSanitize());
+app.use(cookieParser());
+
+app.set('trust proxy', 1);
+
+app.use(helmet());
+app.use(xss());
+app.use(mongoSanitize());
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/jobs', authenticateUser, jobsRouter);
 
 // use for deployment
-// app.get('*', function (request, response) {
-//   response.sendFile(path.resolve(__dirname, './client/build', 'index.html'));
-// });
+app.get('*', function (request, response) {
+  response.sendFile(path.resolve(__dirname, './client/build', 'index.html'));
+});
 
 app.use(notFound);
 app.use(errorHandler);

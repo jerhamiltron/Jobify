@@ -2,14 +2,19 @@ import jwt from 'jsonwebtoken';
 import { UnauthenticatedError } from '../errors/index.js';
 
 const auth = async (req, res, next) => {
-  // check header
-  const authHeader = req.headers.authorization;
+  // check header - not being used since a cookie now
+  // const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer')) {
+  // if (!authHeader || !authHeader.startsWith('Bearer')) {
+  //   throw new UnauthenticatedError('Authentication invalid');
+  // }
+
+  // console.log(req.cookies);
+  const { token } = req.cookies;
+
+  if (!token) {
     throw new UnauthenticatedError('Authentication invalid');
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
