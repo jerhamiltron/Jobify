@@ -1,4 +1,4 @@
-import React, { useReducer, useContext } from 'react';
+import React, { useReducer, useContext, useEffect } from 'react';
 import axios from 'axios';
 
 import reducer from './reducer';
@@ -30,22 +30,25 @@ import {
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   CHANGE_PAGE,
+  GET_CURRENT_USER_BEGIN,
+  GET_CURRENT_USER_SUCCESS,
 } from './actions';
 
-const token = localStorage.getItem('token');
+// eslint-disable-next-line
 const user = localStorage.getItem('user');
+// eslint-disable-next-line
 const userLocation = localStorage.getItem('location');
 
 const initialState = {
+  userLoading: true,
   isLoading: false,
   showAlert: false,
   showSidebar: false,
   alertText: '',
   alertType: '',
-  user: user ? JSON.parse(user) : null,
-  token: token,
-  userLocation: userLocation || '',
-  jobLocation: userLocation || '',
+  user: null,
+  userLocation: '',
+  jobLocation: '',
   isEditing: false,
   editJobId: '',
   position: '',
@@ -81,15 +84,16 @@ const AppProvider = ({ children }) => {
   });
 
   // Interceptors request - used in authFetch , but could be used directly in axios (see docs)
-  authFetch.interceptors.request.use(
-    (config) => {
-      config.headers['Authorization'] = `Bearer ${state.token}`;
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
+  // <------> Not needed since token is coming from cookie
+  // authFetch.interceptors.request.use(
+  //   (config) => {
+  //     config.headers['Authorization'] = `Bearer ${state.token}`;
+  //     return config;
+  //   },
+  //   (error) => {
+  //     return Promise.reject(error);
+  //   }
+  // );
 
   // interceptors response
   authFetch.interceptors.response.use(
@@ -128,36 +132,22 @@ const AppProvider = ({ children }) => {
     dispatch({ type: CLEAR_FILTERS });
   };
 
-  const addUserToLocalStorage = ({ user, token, location }) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', token);
-    localStorage.setItem('location', location);
-  };
-
-  const removeUserFromLocalStorage = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('location');
-  };
-
   const setupUser = async ({ currentUser, endPoint, alertText }) => {
     dispatch({ type: SETUP_USER_BEGIN });
     try {
       const { data } = await axios.post(`/api/v1/auth/${endPoint}`, currentUser);
-      const { user, token, location } = data;
+      const { user, location } = data;
 
-      dispatch({ type: SETUP_USER_SUCCESS, payload: { user, token, location, alertText } });
-
-      addUserToLocalStorage({ user, token, location });
+      dispatch({ type: SETUP_USER_SUCCESS, payload: { user, location, alertText } });
     } catch (err) {
       dispatch({ type: SETUP_USER_ERROR, payload: { msg: err.response.data.message } });
     }
     clearAlert();
   };
 
-  const logoutUser = () => {
+  const logoutUser = async () => {
+    await authFetch.get('/auth/logout');
     dispatch({ type: LOGOUT_USER });
-    removeUserFromLocalStorage();
   };
 
   const updateUser = async (currentUser) => {
@@ -167,19 +157,17 @@ const AppProvider = ({ children }) => {
       // const headerConfig = { headers: { Authorization: `Bearer ${state.token}` } };
 
       const { data } = await authFetch.patch('/auth/updateUser', currentUser);
-      const { user, token, location } = data;
+      const { user, location } = data;
 
       dispatch({
         type: UPDATE_USER_SUCCESS,
         payload: {
           user,
-          token,
           location,
           alertType: 'success',
           alertText: 'User updated successfully',
         },
       });
-      addUserToLocalStorage({ user, token, location });
     } catch (err) {
       if (err.response.status !== 401) {
         dispatch({ type: UPDATE_USER_ERROR, payload: { msg: err.response.data.message } });
@@ -298,6 +286,25 @@ const AppProvider = ({ children }) => {
   const changePage = (page) => {
     dispatch({ type: CHANGE_PAGE, payload: { page } });
   };
+
+  // Get Current User
+  const getCurrentUser = async () => {
+    dispatch({ type: GET_CURRENT_USER_BEGIN });
+
+    try {
+      const { data } = await authFetch('/auth/getCurrentUser');
+      const { user, location } = data;
+
+      dispatch({ type: GET_CURRENT_USER_SUCCESS, payload: { user, location } });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      logoutUser();
+    }
+  };
+
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
 
   // <------------------->
 
